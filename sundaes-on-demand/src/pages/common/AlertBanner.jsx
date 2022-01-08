@@ -6,7 +6,11 @@ export default function AlertBanner({ message, variant }) {
   const alertVariant = variant || "danger";
 
   return (
-    <Alert variant={alertVariant} style={{ backgroundColor: "red" }}>
+    <Alert
+      variant={alertVariant}
+      style={{ backgroundColor: "red" }}
+      aria-label={alertMessage}
+    >
       {alertMessage}
     </Alert>
   );
