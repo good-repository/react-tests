@@ -3,6 +3,7 @@ import {
   screen,
   waitFor,
 } from "../../../test-utils/testing-library-utils";
+import userEvent from "@testing-library/user-event";
 import OrderEntry from "../OrderEntry";
 import { rest } from "msw";
 import { server } from "../../../mocks/server";
@@ -25,4 +26,23 @@ test("handles error for scoops and toppings routes", async () => {
 
     expect(alerts).toHaveLength(2);
   });
+});
+
+test("disable order button if there are no scoops ordered", async () => {
+  render(<OrderEntry />);
+
+  const orderButton = screen.getByRole("button", { name: /order sundae/i });
+  expect(orderButton).toBeDisabled();
+
+  const vanillaInput = await screen.findByRole("spinbutton", {
+    name: "Vanilla",
+  });
+
+  userEvent.clear(vanillaInput);
+  userEvent.type(vanillaInput, "1");
+  expect(orderButton).toBeEnabled();
+
+  userEvent.clear(vanillaInput);
+  userEvent.type(vanillaInput, "0");
+  expect(orderButton).toBeDisabled();
 });
