@@ -4,12 +4,13 @@ import { formatCurrency } from "../utilities";
 
 const OrderDetails = createContext();
 
+// create custom hook to check whether we're inside a provider
 export function useOrderDetails() {
   const context = useContext(OrderDetails);
 
   if (!context) {
     throw new Error(
-      "useOrderDetails must be used within as OrderDetailsProvider"
+      "useOrderDetails must be used within an OrderDetailsProvider"
     );
   }
 
@@ -30,7 +31,6 @@ export function OrderDetailsProvider(props) {
     scoops: new Map(),
     toppings: new Map(),
   });
-
   const zeroCurrency = formatCurrency(0);
   const [totals, setTotals] = useState({
     scoops: zeroCurrency,
@@ -42,7 +42,6 @@ export function OrderDetailsProvider(props) {
     const scoopsSubtotal = calculateSubtotal("scoops", optionCounts);
     const toppingsSubtotal = calculateSubtotal("toppings", optionCounts);
     const grandTotal = scoopsSubtotal + toppingsSubtotal;
-
     setTotals({
       scoops: formatCurrency(scoopsSubtotal),
       toppings: formatCurrency(toppingsSubtotal),
@@ -60,7 +59,15 @@ export function OrderDetailsProvider(props) {
       setOptionCounts(newOptionCounts);
     }
 
-    return [{ ...optionCounts, totals }, updateItemCount];
+    function resetOrder() {
+      setOptionCounts({
+        scoops: new Map(),
+        toppings: new Map(),
+      });
+    }
+    // getter: object containing option counts for scoops and toppings, subtotals and totals
+    // setter: updateOptionCount
+    return [{ ...optionCounts, totals }, updateItemCount, resetOrder];
   }, [optionCounts, totals]);
   return <OrderDetails.Provider value={value} {...props} />;
 }
