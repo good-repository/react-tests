@@ -21,7 +21,8 @@
       "jsx": true
     },
     "parser": "@typescript-eslint/parser",
-    "project": "tsconfig.json"
+    "project": "tsconfig.json",
+    "tsconfigRootDir": "./advanced-tests/base-app/client"
   },
   "plugins": [
     "testing-library",
