@@ -126,6 +126,7 @@ export function* ticketFlow({
   } catch (error) {
     const ticketAction = yield select(selectors.getTicketAction);
     yield put(
+      // @ts-ignore: Unreachable code error
       showToast(generateErrorToastOptions(error.message, ticketAction))
     );
 
