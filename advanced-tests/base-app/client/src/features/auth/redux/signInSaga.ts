@@ -29,6 +29,7 @@ export function* authenticateUser(payload: SignInDetails): SagaIterator {
     const action = payload.action === "signIn" ? "in" : "up";
     yield put(
       showToast({
+        // @ts-ignore: Unreachable code error
         title: `Sign ${action} failed: ${error.message}`,
         status: "warning",
       })
