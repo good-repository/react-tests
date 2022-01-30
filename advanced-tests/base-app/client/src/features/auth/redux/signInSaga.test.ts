@@ -1,9 +1,6 @@
-// adapted from https://redux-saga.js.org/docs/advanced/NonBlockingCalls/
-import { SagaIterator } from "redux-saga";
-import { call, cancel, cancelled, fork, put, take } from "redux-saga/effects";
 import { expectSaga } from "redux-saga-test-plan";
 import * as matchers from "redux-saga-test-plan/matchers";
-import { StaticProvider } from "redux-saga-test-plan/providers";
+import { StaticProvider, throwError } from "redux-saga-test-plan/providers";
 
 import { showToast } from "../../toast/redux/toastSlice";
 import { authServerCall } from "../api";
@@ -35,6 +32,9 @@ const authServerResponse: LoggedInUser = {
   token: "12345",
   id: 123,
 };
+
+const sleep = (delay: number) =>
+  new Promise((resolve) => setTimeout(resolve, delay));
 
 const networkProviders: Array<StaticProvider> = [
   [matchers.call.fn(authServerCall), authServerResponse],
@@ -79,6 +79,42 @@ describe("signInFlow saga", () => {
       .put(endSignIn())
       .silentRun();
   });
-  test.todo("canceled sign-in");
-  test.todo("sign-in error");
+  test("canceled sign-in", () => {
+    return expectSaga(signInFlow)
+      .provide({
+        call: async (effect, next) => {
+          if (effect.fn === authServerCall) {
+            await sleep(500);
+          }
+          next();
+        },
+      })
+      .dispatch(signInRequest(signInRequestPayload))
+      .fork(authenticateUser, signInRequestPayload)
+      .dispatch(cancelSignIn())
+      .put(showToast({ title: "Sign in canceled", status: "warning" }))
+      .put(signOut())
+      .put(endSignIn())
+      .silentRun(25);
+  });
+  test("sign-in error", () => {
+    return expectSaga(signInFlow)
+      .provide([
+        [
+          matchers.call.fn(authServerCall),
+          throwError(new Error("something gone wrong")),
+        ],
+      ])
+      .dispatch(signInRequest(signInRequestPayload))
+      .fork(authenticateUser, signInRequestPayload)
+      .put(startSignIn())
+      .put(
+        showToast({
+          title: "Sign in failed: something gone wrong",
+          status: "warning",
+        })
+      )
+      .put(endSignIn())
+      .silentRun(25);
+  });
 });
