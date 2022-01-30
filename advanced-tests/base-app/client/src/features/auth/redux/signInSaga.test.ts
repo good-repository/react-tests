@@ -24,6 +24,12 @@ const signInRequestPayload: SignInDetails = {
   action: "signIn",
 };
 
+const signUpRequestPayload: SignInDetails = {
+  email: "some@email.com",
+  password: "123456",
+  action: "signUp",
+};
+
 const authServerResponse: LoggedInUser = {
   email: "some@email.com",
   token: "12345",
@@ -56,7 +62,23 @@ describe("signInFlow saga", () => {
         .silentRun(25)
     );
   });
-  test.todo("sucessfull sign-up");
+  test("sucessfull sign-up", () => {
+    return expectSaga(signInFlow)
+      .provide(networkProviders)
+      .dispatch(signInRequest(signUpRequestPayload))
+      .fork(authenticateUser, signUpRequestPayload)
+      .put(startSignIn())
+      .call(authServerCall, signUpRequestPayload)
+      .put(signIn(authServerResponse))
+      .put(
+        showToast({
+          title: "Signed in as some@email.com",
+          status: "info",
+        })
+      )
+      .put(endSignIn())
+      .silentRun();
+  });
   test.todo("canceled sign-in");
   test.todo("sign-in error");
 });
