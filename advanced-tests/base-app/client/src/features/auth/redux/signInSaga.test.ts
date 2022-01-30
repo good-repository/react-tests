@@ -1,4 +1,5 @@
-import { expectSaga } from "redux-saga-test-plan";
+import { createMockTask } from "@redux-saga/testing-utils";
+import { expectSaga, testSaga } from "redux-saga-test-plan";
 import * as matchers from "redux-saga-test-plan/matchers";
 import { StaticProvider, throwError } from "redux-saga-test-plan/providers";
 
@@ -116,5 +117,18 @@ describe("signInFlow saga", () => {
       )
       .put(endSignIn())
       .silentRun(25);
+  });
+});
+
+describe("unit tests for fork cancellation", () => {
+  test("saga cancel flow", () => {
+    const task = createMockTask();
+    const saga = testSaga(signInFlow);
+    saga.next().take(signInRequest.type);
+    saga
+      .next({ type: "test", payload: signInRequestPayload })
+      .fork(authenticateUser, signInRequestPayload);
+    saga.next(task).take([cancelSignIn.type, endSignIn.type]);
+    saga.next(cancelSignIn()).cancel(task);
   });
 });
