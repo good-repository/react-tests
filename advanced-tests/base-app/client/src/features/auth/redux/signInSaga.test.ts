@@ -24,22 +24,37 @@ const signInRequestPayload: SignInDetails = {
   action: "signIn",
 };
 
+const authServerResponse: LoggedInUser = {
+  email: "some@email.com",
+  token: "12345",
+  id: 123,
+};
+
 const networkProviders: Array<StaticProvider> = [
-  [matchers.call.fn(authServerCall), null],
+  [matchers.call.fn(authServerCall), authServerResponse],
 ];
 
 describe("signInFlow saga", () => {
   test("successful sign-in", () => {
-    return expectSaga(signInFlow)
-      .provide(networkProviders)
-      .dispatch(signInRequest(signInRequestPayload))
-      .fork(authenticateUser, signInRequestPayload)
-      .put(startSignIn())
-      .call(authServerCall, signInRequestPayload)
-      .put.actionType(signIn.type)
-      .put.actionType(showToast.type)
-      .put(endSignIn())
-      .silentRun(25);
+    return (
+      expectSaga(signInFlow)
+        .provide(networkProviders)
+        .dispatch(signInRequest(signInRequestPayload))
+        .fork(authenticateUser, signInRequestPayload)
+        .put(startSignIn())
+        .call(authServerCall, signInRequestPayload)
+        .put(signIn(authServerResponse))
+        // .put.actionType(signIn.type) this way still passes but is not the better
+        .put(
+          showToast({
+            title: "Signed in as some@email.com",
+            status: "info",
+          })
+        )
+        // .put.actionType(showToast.type) this way still passes but is not the better
+        .put(endSignIn())
+        .silentRun(25)
+    );
   });
   test.todo("sucessfull sign-up");
   test.todo("canceled sign-in");
