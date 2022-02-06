@@ -1,3 +1,4 @@
+import { App } from "../../../App";
 import { render, screen } from "../../../test-utils";
 import { UserProfile } from "./UserProfile";
 
@@ -13,4 +14,13 @@ test("greets the user", () => {
 test("redirects to signin if user is false", () => {
   const { history } = render(<UserProfile />);
   expect(history.location.pathname).toBe("/signin");
+});
+
+test("view sign-in page when loading profile while not logged in", () => {
+  render(<App />, { routeHistory: ["/profile"] });
+  const heading = screen.getByRole("heading", {
+    name: /sign in to your account/i,
+  });
+
+  expect(heading).toBeInTheDocument();
 });
