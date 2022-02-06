@@ -1,10 +1,11 @@
 import {
   render as rtlRender,
-  RenderResult,
   RenderOptions,
+  RenderResult,
 } from "@testing-library/react";
 import { ReactElement } from "react";
 import { Provider } from "react-redux";
+
 import { configureStoreWithMiddlewares, RootState } from "../app/store";
 
 type CustomRenderOptions = {
