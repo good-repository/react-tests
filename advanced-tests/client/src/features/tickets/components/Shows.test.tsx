@@ -1,4 +1,10 @@
-import { getByRole, getByText, render, screen } from "../../../test-utils";
+import {
+  fireEvent,
+  getByRole,
+  getByText,
+  render,
+  screen,
+} from "../../../test-utils";
 import { Shows } from "./Shows";
 
 // name: "Avalanche of Cheese",
@@ -48,4 +54,13 @@ test("displays sould-out show", async () => {
     /serious world music with an iconic musical saw/i
   );
   expect(description).toBeInTheDocument();
+});
+
+test('redirects to correct tickets URL when "tickets" is clicked', async () => {
+  const { history } = render(<Shows />);
+
+  const ticketsButton = await screen.findByRole("button", { name: /tickets/i });
+  fireEvent.click(ticketsButton);
+
+  expect(history.location.pathname).toBe("/tickets/0");
 });
