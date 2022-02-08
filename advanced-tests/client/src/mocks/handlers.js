@@ -18,4 +18,7 @@ export const handlers = [
     // showId is convenient the index in the shows array
     return res(ctx.json({ show: shows[showId] }));
   }),
+  rest.patch(`${showsUrl}/:showId/hold/:holdId`, (req, res, ctx) => {
+    return res(ctx.status(200));
+  }),
 ];
