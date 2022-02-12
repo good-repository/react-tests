@@ -1,7 +1,6 @@
 import { rest } from "msw";
 
 import { baseUrl, endpoints } from "../app/axios/constants";
-import { signIn } from "../features/auth/redux/authSlice";
 import { bandUrl } from "../features/band/redux/bandApi";
 import { showsUrl } from "../features/tickets/redux/showApi";
 import { bands, shows } from "../test-utils/fake-data";
