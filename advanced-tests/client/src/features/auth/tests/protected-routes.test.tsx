@@ -1,5 +1,7 @@
+import userEvent from "@testing-library/user-event";
+
 import { App } from "../../../App";
-import { render, screen } from "../../../test-utils";
+import { getByRole, render, screen, waitFor } from "../../../test-utils";
 
 test.each([
   ["/profile"],
@@ -14,3 +16,25 @@ test.each([
     expect(heading).toBeInTheDocument();
   }
 );
+
+test("successful sign-in flow", async () => {
+  const { history } = render(<App />, { routeHistory: ["/tickets/1"] });
+
+  const emailField = screen.getByLabelText(/email/i);
+  userEvent.type(emailField, "email@test.com");
+
+  const passwordField = screen.getByLabelText(/email/i);
+  userEvent.type(passwordField, "blablabla");
+
+  const signInForm = screen.getByTestId("sign-in-form");
+  const signInButton = getByRole(signInForm, "button", {
+    name: /sign in/i,
+  });
+  userEvent.click(signInButton);
+
+  await waitFor(() => {
+    expect(history.location.pathname).toBe("/tickets/1");
+  });
+
+  expect(history.entries).toHaveLength(1);
+});
