@@ -17,24 +17,27 @@ test.each([
   }
 );
 
-test("successful sign-in flow", async () => {
-  const { history } = render(<App />, { routeHistory: ["/tickets/1"] });
+test.each([["Sign in"], ["Sign up"]])(
+  "successful %p flow",
+  async (buttonName) => {
+    const { history } = render(<App />, { routeHistory: ["/tickets/1"] });
 
-  const emailField = screen.getByLabelText(/email/i);
-  userEvent.type(emailField, "email@test.com");
+    const emailField = screen.getByLabelText(/email/i);
+    userEvent.type(emailField, "email@test.com");
 
-  const passwordField = screen.getByLabelText(/email/i);
-  userEvent.type(passwordField, "blablabla");
+    const passwordField = screen.getByLabelText(/email/i);
+    userEvent.type(passwordField, "blablabla");
 
-  const signInForm = screen.getByTestId("sign-in-form");
-  const signInButton = getByRole(signInForm, "button", {
-    name: /sign in/i,
-  });
-  userEvent.click(signInButton);
+    const signInForm = screen.getByTestId("sign-in-form");
+    const signInButton = getByRole(signInForm, "button", {
+      name: buttonName,
+    });
+    userEvent.click(signInButton);
 
-  await waitFor(() => {
-    expect(history.location.pathname).toBe("/tickets/1");
-  });
+    await waitFor(() => {
+      expect(history.location.pathname).toBe("/tickets/1");
+    });
 
-  expect(history.entries).toHaveLength(1);
-});
+    expect(history.entries).toHaveLength(1);
+  }
+);
